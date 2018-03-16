@@ -44,7 +44,11 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 		Cursor: 0,
 	}
 
+	// First 4 bytes of a tx are the tx version; most chains only have version 1
 	version := txreader.ReadUint32()
+
+	vinsize := txreader.ReadCompactSizeUint()
+	fmt.Println(vinsize)
 
 	tx := &Transaction{
 		Version: version,
