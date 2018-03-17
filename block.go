@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// Identical to bitcoin Script in transaction.go
+// Just for better readability
 type Hash256 []byte
 
 type Block struct {
@@ -20,6 +22,8 @@ type Block struct {
 	Height        uint64
 }
 
+// Returns a block parsed from the given hexstring (such as
+// from `getblock` or insight-api)
 func NewBlockFromHexString(hexstring string) (*Block, error) {
 	fmt.Println("BlockUtils Block")
 	txbytes, err := hex.DecodeString(hexstring)
@@ -30,6 +34,8 @@ func NewBlockFromHexString(hexstring string) (*Block, error) {
 	return NewBlockFromBytes(txbytes)
 }
 
+// Returns a block parsed from the given bytes (such as
+// from reading a blockchain file)
 func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 	var err error
 	blockreader := ByteReader{

@@ -6,9 +6,9 @@ import (
 	"log"
 )
 
-const LENGTH_UINT16 = 2
-const LENGTH_UINT32 = 4
-const LENGTH_UINT64 = 8
+const length_UINT16 = 2
+const length_UINT32 = 4
+const length_UINT64 = 8
 
 type ByteReader struct {
 	Bytes  []byte
@@ -17,34 +17,34 @@ type ByteReader struct {
 
 func (r *ByteReader) readUint16() uint16 {
 	val := uint16(0)
-	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+LENGTH_UINT16])
+	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+length_UINT16])
 	err := binary.Read(buf, binary.LittleEndian, &val)
 	if err != nil {
 		log.Fatalf("Decode failed: %s", err)
 	}
-	r.Cursor += LENGTH_UINT16
+	r.Cursor += length_UINT16
 	return val
 }
 
 func (r *ByteReader) readUint32() uint32 {
 	val := uint32(0)
-	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+LENGTH_UINT32])
+	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+length_UINT32])
 	err := binary.Read(buf, binary.LittleEndian, &val)
 	if err != nil {
 		log.Fatalf("Decode failed: %s", err)
 	}
-	r.Cursor += LENGTH_UINT32
+	r.Cursor += length_UINT32
 	return val
 }
 
 func (r *ByteReader) readUint64() uint64 {
 	val := uint64(0)
-	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+LENGTH_UINT64])
+	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+length_UINT64])
 	err := binary.Read(buf, binary.LittleEndian, &val)
 	if err != nil {
 		log.Fatalf("Decode failed: %s", err)
 	}
-	r.Cursor += LENGTH_UINT64
+	r.Cursor += length_UINT64
 	return val
 }
 

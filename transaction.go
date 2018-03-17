@@ -6,11 +6,13 @@ import (
 )
 
 // Bitcoin script type backed by a byte array
+// The string function is particularly helpful for working
+// with the stack and getting it into a string representation
 type Script []byte
 
 // Bitcoin witness script type backed by a 2d byte array
 // The string function is particularly helpful for working
-// with the stack
+// with the stack and getting it into a string representation
 type WitnessScript [][]byte
 
 // A Transaction represents a complete Bitcoin-like transaction
@@ -95,6 +97,7 @@ func readWitnessData(txreader *ByteReader, vinsize uint64) (witnessData [][][]by
 }
 
 // Parses a given byte array into a workable transaction
+// such as from a file
 func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	txreader := ByteReader{
 		Bytes:  txbytes,
@@ -104,7 +107,8 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	return ReadTransactionFromReader(&txreader)
 }
 
-// Parses a given hex string into a workable transaction. Ideal for use against getrawtransaction
+// Parses a given hex string into a workable transaction. Ideal for use against
+// getrawtransaction and insight-api etc.
 func NewTransactionFromHexString(hexstring string) (*Transaction, error) {
 	fmt.Println("BlockUtils")
 	txbytes, err := hex.DecodeString(hexstring)
@@ -115,6 +119,8 @@ func NewTransactionFromHexString(hexstring string) (*Transaction, error) {
 	return NewTransactionFromBytes(txbytes)
 }
 
+// Parses a transaction from a ByteReader. This is to be used when parsing
+// an entire block
 func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
 	var err error
 	isSegwit := false

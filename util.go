@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-// TODO: Maybe can optimize
+// ReverseHex reverses the order of a given byte array.
+// A fair number of data in the blockchain is reversed
 func ReverseHex(b []byte) []byte {
 	newb := make([]byte, len(b))
 	copy(newb, b)
@@ -20,6 +21,8 @@ func ReverseHex(b []byte) []byte {
 	return newb
 }
 
+// Computers a sha256(sha256(data)) for the given data
+// Used for block headers, etc.
 func DoubleSha256(data []byte) Hash256 {
 	hash := sha256.New()
 	hash.Write(data)
