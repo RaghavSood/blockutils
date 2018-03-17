@@ -74,6 +74,7 @@ func ExampleNewBlockFromHexString() {
 	fmt.Printf("NBits: %d\n", block.NBits)
 	fmt.Printf("Nonce: %d\n", block.Nonce)
 	fmt.Printf("TxCount: %d\n", block.TxCount)
+	fmt.Printf("IsGenesisBlock: %t\n", block.IsGenesisBlock())
 
 	fmt.Println("\nTransactions:")
 
@@ -106,6 +107,7 @@ func ExampleNewBlockFromHexString() {
 	// NBits: 486604799
 	// Nonce: 1832536838
 	// TxCount: 1
+	// IsGenesisBlock: false
 	//
 	// Transactions:
 	// 	TxId: 2b1f06c2401d3b49a33c3f5ad5864c0bc70044c4068f9174546f3cfc1887d5ba

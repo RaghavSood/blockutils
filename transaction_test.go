@@ -165,10 +165,13 @@ func ExampleNewTransactionFromHexString() {
 	if err != nil {
 		fmt.Errorf("Could not parse tx hex; %s", err)
 	}
+
 	fmt.Printf("TxId: %s\n", tx.TxId)
 	fmt.Printf("Size: %d\n", tx.Size)
 	fmt.Printf("Version: %d\n", tx.Version)
 	fmt.Printf("Locktime: %d\n", tx.Locktime)
+	fmt.Printf("IsCoinbase: %t\n", tx.IsCoinbase())
+
 	for _, txin := range tx.Vin {
 		fmt.Println("\n\tTransaction Inputs:")
 		fmt.Printf("\tHash: %s\n", txin.Hash)
@@ -187,6 +190,7 @@ func ExampleNewTransactionFromHexString() {
 	// Size: 249
 	// Version: 2
 	// Locktime: 1337274
+	// IsCoinbase: false
 	//
 	// 	Transaction Inputs:
 	// 	Hash: 666db5968d456e1150780660a893951d0ad1ae72cd064cd124be1717e4b939b5
@@ -202,4 +206,53 @@ func ExampleNewTransactionFromHexString() {
 	// 	Transaction Outputs:
 	// 	Value: 50209865
 	// 	Script: a9148a4275e9d10794c5d54d0b2ef9d33cb028258c5a87
+}
+
+func ExampleNewTransactionFromHexString_second() {
+	btcbech32tx := "010000000001018559a09c9cec6113ebd95cd92ea47e62b474cbbb029b80245b0442a5ccfe0bd40700000000ffffffff024081ba010000000017a9144820500835190c3b44384a483470e43b22bcdba187df5ca40200000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d04004730440220515ad25b217558f0f8bb3b415c0ab6163e0e6fcea4c555b320a1366eb9e62b1d02203790721467854b53b79d3ce72cc74d448d13836db5b30add0d84ac1b38d523700147304402207c3487d85fe8852316b532a2703ca0d86c642128a3f264098391c0901ccbd1f202207ec8d2aa6099e8aab742c8103bd487ac275c3416780e7478206986a6d7e56002016952210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae00000000"
+	tx, err := NewTransactionFromHexString(btcbech32tx)
+	if err != nil {
+		fmt.Errorf("Could not parse tx hex; %s", err)
+	}
+
+	fmt.Printf("TxId: %s\n", tx.TxId)
+	fmt.Printf("Size: %d\n", tx.Size)
+	fmt.Printf("Version: %d\n", tx.Version)
+	fmt.Printf("Locktime: %d\n", tx.Locktime)
+	fmt.Printf("IsCoinbase: %t\n", tx.IsCoinbase())
+
+	for _, txin := range tx.Vin {
+		fmt.Println("\n\tTransaction Inputs:")
+		fmt.Printf("\tHash: %s\n", txin.Hash)
+		fmt.Printf("\tIndex: %d\n", txin.Index)
+		fmt.Printf("\tScript: %s\n", txin.Script)
+		fmt.Printf("\tSequence: %d\n", txin.Sequence)
+		fmt.Printf("\tScriptWitness: %s\n", txin.ScriptWitness)
+	}
+	for _, txout := range tx.Vout {
+		fmt.Println("\n\tTransaction Outputs:")
+		fmt.Printf("\tValue: %d\n", txout.Value)
+		fmt.Printf("\tScript: %s\n", txout.Script)
+	}
+
+	// Output: TxId: 1aaa88ba5e305e105e59f34124cd69dd3ee6d44d5e118900b0008005299e4f26
+	// Size: 380
+	// Version: 1
+	// Locktime: 0
+	// IsCoinbase: false
+	//
+	// 	Transaction Inputs:
+	// 	Hash: d40bfecca542045b24809b02bbcb74b4627ea42ed95cd9eb1361ec9c9ca05985
+	// 	Index: 7
+	// 	Script: 0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d
+	// 	Sequence: 4294967295
+	// 	ScriptWitness: [ 30440220515ad25b217558f0f8bb3b415c0ab6163e0e6fcea4c555b320a1366eb9e62b1d02203790721467854b53b79d3ce72cc74d448d13836db5b30add0d84ac1b38d5237001 304402207c3487d85fe8852316b532a2703ca0d86c642128a3f264098391c0901ccbd1f202207ec8d2aa6099e8aab742c8103bd487ac275c3416780e7478206986a6d7e5600201 52210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae]
+	//
+	// 	Transaction Outputs:
+	// 	Value: 29000000
+	// 	Script: a9144820500835190c3b44384a483470e43b22bcdba187
+	//
+	// 	Transaction Outputs:
+	// 	Value: 44326111
+	// 	Script: 0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d
 }

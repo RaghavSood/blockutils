@@ -101,3 +101,7 @@ func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 
 	return block, err
 }
+
+func (block *Block) IsGenesisBlock() bool {
+	return AllZero(block.PrevBlockHash)
+}

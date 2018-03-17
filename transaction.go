@@ -177,6 +177,9 @@ func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
 
 		for i, _ := range txins {
 			txins[i].ScriptWitness = witnessData[i]
+			if len(txins[i].Script) == 0 {
+				txins[i].Script = append([]byte{0x00, 0x20}, Script(Sha256(witnessData[i][len(witnessData[i])-1]))...)
+			}
 		}
 	}
 
