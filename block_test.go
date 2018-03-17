@@ -78,22 +78,22 @@ func ExampleNewBlockFromHexString() {
 	fmt.Println("\nTransactions:")
 
 	for _, tx := range block.Transactions {
-		fmt.Printf("TxId: %s\n", tx.TxId)
-		fmt.Printf("Size: %d\n", tx.Size)
-		fmt.Printf("Version: %d\n", tx.Version)
-		fmt.Printf("Locktime: %d\n", tx.Locktime)
+		fmt.Printf("\tTxId: %s\n", tx.TxId)
+		fmt.Printf("\tSize: %d\n", tx.Size)
+		fmt.Printf("\tVersion: %d\n", tx.Version)
+		fmt.Printf("\tLocktime: %d\n", tx.Locktime)
 		for _, txin := range tx.Vin {
-			fmt.Println("\nTransaction Inputs:")
-			fmt.Printf("Hash: %s\n", txin.Hash)
-			fmt.Printf("Index: %d\n", txin.Index)
-			fmt.Printf("Script: %s\n", txin.Script)
-			fmt.Printf("Sequence: %d\n", txin.Sequence)
-			fmt.Printf("ScriptWitness: %s\n", txin.ScriptWitness)
+			fmt.Println("\n\t\tTransaction Inputs:")
+			fmt.Printf("\t\tHash: %s\n", txin.Hash)
+			fmt.Printf("\t\tIndex: %d\n", txin.Index)
+			fmt.Printf("\t\tScript: %s\n", txin.Script)
+			fmt.Printf("\t\tSequence: %d\n", txin.Sequence)
+			fmt.Printf("\t\tScriptWitness: %s\n", txin.ScriptWitness)
 		}
 		for _, txout := range tx.Vout {
-			fmt.Println("\nTransaction Outputs:")
-			fmt.Printf("Value: %d\n", txout.Value)
-			fmt.Printf("Script: %s\n", txout.Script)
+			fmt.Println("\n\t\tTransaction Outputs:")
+			fmt.Printf("\t\tValue: %d\n", txout.Value)
+			fmt.Printf("\t\tScript: %s\n", txout.Script)
 		}
 	}
 
@@ -108,19 +108,19 @@ func ExampleNewBlockFromHexString() {
 	// TxCount: 1
 	//
 	// Transactions:
-	// TxId: 2b1f06c2401d3b49a33c3f5ad5864c0bc70044c4068f9174546f3cfc1887d5ba
-	// Size: 134
-	// Version: 1
-	// Locktime: 0
+	// 	TxId: 2b1f06c2401d3b49a33c3f5ad5864c0bc70044c4068f9174546f3cfc1887d5ba
+	// 	Size: 134
+	// 	Version: 1
+	// 	Locktime: 0
 	//
-	// Transaction Inputs:
-	// Hash: 0000000000000000000000000000000000000000000000000000000000000000
-	// Index: 4294967295
-	// Script: 04ffff001d0138
-	// Sequence: 4294967295
-	// ScriptWitness: []
+	// 		Transaction Inputs:
+	// 		Hash: 0000000000000000000000000000000000000000000000000000000000000000
+	// 		Index: 4294967295
+	// 		Script: 04ffff001d0138
+	// 		Sequence: 4294967295
+	// 		ScriptWitness: []
 	//
-	// Transaction Outputs:
-	// Value: 5000000000
-	// Script: 41045e071dedd1ed03721c6e9bba28fc276795421a378637fb41090192bb9f208630dcbac5862a3baeb9df3ca6e4e256b7fd2404824c20198ca1b004ee2197866433ac
+	// 		Transaction Outputs:
+	// 		Value: 5000000000
+	// 		Script: 41045e071dedd1ed03721c6e9bba28fc276795421a378637fb41090192bb9f208630dcbac5862a3baeb9df3ca6e4e256b7fd2404824c20198ca1b004ee2197866433ac
 }
