@@ -60,6 +60,11 @@ func (r *ByteReader) ReadBytes(length uint64) []byte {
 	return byteVals
 }
 
+func (r *ByteReader) PeekBytes(length uint64) []byte {
+	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
+	return byteVals
+}
+
 /**
  * A compact size uint is defined as follows in the original satoshi code
  * (it has since been somewhat replaced by CVarInt in present day bitcoin)

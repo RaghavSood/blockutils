@@ -3,6 +3,7 @@ package blockutils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"strings"
 )
 
 // TODO: Maybe can optimize
@@ -32,4 +33,13 @@ func (script Script) String() string {
 
 func (hash256 Hash256) String() string {
 	return hex.EncodeToString(ReverseHex(hash256))
+}
+
+func (witness WitnessScript) String() string {
+	hexStrings := make([]string, len(witness))
+	for i, _ := range witness {
+		hexStrings[i] = hex.EncodeToString(witness[i])
+	}
+	// return hex.EncodeToString(witness[0])
+	return "[" + strings.Join(hexStrings, " ") + "]"
 }
