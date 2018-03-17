@@ -88,6 +88,10 @@ func TestDigiByteTx(t *testing.T) {
 	if tx.Vout[1].Script.String() != "76a914d00455c4000530f93bf53e32615a7dee6da2a03b88ac" {
 		t.Errorf("TX script did not match for output 1, expected %s, got %s", "76a914d00455c4000530f93bf53e32615a7dee6da2a03b88ac", tx.Vout[1].Script)
 	}
+
+	if tx.IsCoinbase() {
+		t.Error("TX should not be a coinbase tx")
+	}
 }
 
 // https://digiexplorer.info/tx/b982c9ccdd9898456bf7d35daeb2bac2fa00d490cf4e2db2d1bd8c76ca5a9ffc
@@ -150,6 +154,10 @@ func TestDigiByteCoinbaseTx(t *testing.T) {
 
 	if tx.Vout[1].Script.String() != "76a914510fffca0668d410aea742e95a2fefa7952f695e88ac" {
 		t.Errorf("TX script did not match for output 1, expected %s, got %s", "76a914510fffca0668d410aea742e95a2fefa7952f695e88ac", tx.Vout[1].Script)
+	}
+
+	if !tx.IsCoinbase() {
+		t.Error("TX should be a coinbase tx")
 	}
 }
 

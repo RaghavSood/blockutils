@@ -209,3 +209,9 @@ func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
 
 	return tx, nil
 }
+
+// Returns true if a transaction is a coinbase tx,
+// false otherwise
+func (tx *Transaction) IsCoinbase() bool {
+	return AllZero(tx.Vin[0].Hash)
+}
