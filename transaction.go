@@ -4,11 +4,6 @@ import (
 	"encoding/hex"
 )
 
-// Bitcoin script type backed by a byte array
-// The string function is particularly helpful for working
-// with the stack and getting it into a string representation
-type Script []byte
-
 // Bitcoin witness script type backed by a 2d byte array
 // The string function is particularly helpful for working
 // with the stack and getting it into a string representation

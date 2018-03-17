@@ -40,6 +40,10 @@ func DoubleSha256(data []byte) Hash256 {
 	return hash.Sum(nil)
 }
 
+func ToHexString(data []byte) string {
+	return hex.EncodeToString(data)
+}
+
 func (script Script) String() string {
 	return hex.EncodeToString(script)
 }
