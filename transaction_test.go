@@ -256,3 +256,56 @@ func ExampleNewTransactionFromHexString_second() {
 	// 	Value: 44326111
 	// 	Script: 0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d
 }
+
+func ExampleNewTransactionFromHexString_third() {
+	btcomnimaidsafe := "010000000197e521dff6f21a03368b2da4434104c7890931a11ec0bbd4a1630fb2baeecf9b00000000da00483045022100c24edd955100c3499b2878869226271eeb649c15e0a75b081a038e2c26fc472402201b023ca621c3ae918f1325516402066e7b98aaf036db80d05fcb4d5ead2f713c01473044022068cd12b0f5d38ed1c7da7a936ba89f27d6e4074a8c72f0fecf0b04ee55e03418022007d1d465af4fcc3c80592658e65da82565223ff302cae53ba62e836d250e3e390147522103c9078b8d06d83347b2e7e8cbbdfc24bd50e09ca1a4e5d90d70485a8c4094e5672102d52317afd128305d6fca7bd30b839e821564990c88581ebb432b478cfa95602f52aeffffffff03d07e01000000000017a9144aef67ed61d391d6f3d9903ead92386c1efc9925870000000000000000166a146f6d6e69000000000000000300000000000000c8e8030000000000001976a914bdb2b538e6b07e93d6bafcef4bec9dc936818a1988ac00000000"
+	tx, err := NewTransactionFromHexString(btcomnimaidsafe)
+	if err != nil {
+		fmt.Errorf("Could not parse tx hex; %s", err)
+	}
+
+	fmt.Printf("TxId: %s\n", tx.TxId)
+	fmt.Printf("Size: %d\n", tx.Size)
+	fmt.Printf("Version: %d\n", tx.Version)
+	fmt.Printf("Locktime: %d\n", tx.Locktime)
+	fmt.Printf("IsCoinbase: %t\n", tx.IsCoinbase())
+
+	for _, txin := range tx.Vin {
+		fmt.Println("\n\tTransaction Inputs:")
+		fmt.Printf("\tHash: %s\n", txin.Hash)
+		fmt.Printf("\tIndex: %d\n", txin.Index)
+		fmt.Printf("\tScript: %s\n", txin.Script)
+		fmt.Printf("\tSequence: %d\n", txin.Sequence)
+		fmt.Printf("\tScriptWitness: %s\n", txin.ScriptWitness)
+	}
+	for _, txout := range tx.Vout {
+		fmt.Println("\n\tTransaction Outputs:")
+		fmt.Printf("\tValue: %d\n", txout.Value)
+		fmt.Printf("\tScript: %s\n", txout.Script)
+	}
+
+	// Output: TxId: 119c9107e0e1c5c67ebc28f50524978f0de4cf79cb106d5eddea8174b0f19c31
+	// Size: 366
+	// Version: 1
+	// Locktime: 0
+	// IsCoinbase: false
+	//
+	// 	Transaction Inputs:
+	// 	Hash: 9bcfeebab20f63a1d4bbc01ea1310989c7044143a42d8b36031af2f6df21e597
+	// 	Index: 0
+	// 	Script: 00483045022100c24edd955100c3499b2878869226271eeb649c15e0a75b081a038e2c26fc472402201b023ca621c3ae918f1325516402066e7b98aaf036db80d05fcb4d5ead2f713c01473044022068cd12b0f5d38ed1c7da7a936ba89f27d6e4074a8c72f0fecf0b04ee55e03418022007d1d465af4fcc3c80592658e65da82565223ff302cae53ba62e836d250e3e390147522103c9078b8d06d83347b2e7e8cbbdfc24bd50e09ca1a4e5d90d70485a8c4094e5672102d52317afd128305d6fca7bd30b839e821564990c88581ebb432b478cfa95602f52ae
+	// 	Sequence: 4294967295
+	// 	ScriptWitness: []
+	//
+	// 	Transaction Outputs:
+	// 	Value: 98000
+	// 	Script: a9144aef67ed61d391d6f3d9903ead92386c1efc992587
+	//
+	// 	Transaction Outputs:
+	// 	Value: 0
+	// 	Script: 6a146f6d6e69000000000000000300000000000000c8
+	//
+	// 	Transaction Outputs:
+	// 	Value: 1000
+	// 	Script: 76a914bdb2b538e6b07e93d6bafcef4bec9dc936818a1988ac
+}
