@@ -1,6 +1,7 @@
 package blockutils
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -54,4 +55,72 @@ func TestDGB6257234(t *testing.T) {
 			t.Errorf("Incorrect txid for tx %d. Expected %s, got %s", i, dgb6257234TxHashes[i], transaction.TxId)
 		}
 	}
+}
+
+func ExampleNewBlockFromHexString() {
+	btc200 := "01000000eb68047fb29d78480b567ef6b76be556a2ec975656424508cc1c69b700000000bad58718fc3c6f5474918f06c44400c70b4c86d55a3f3ca3493b1d40c2061f2ba00f6b49ffff001d064b3a6d0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0138ffffffff0100f2052a010000004341045e071dedd1ed03721c6e9bba28fc276795421a378637fb41090192bb9f208630dcbac5862a3baeb9df3ca6e4e256b7fd2404824c20198ca1b004ee2197866433ac00000000"
+
+	block, err := NewBlockFromHexString(btc200)
+	if err != nil {
+		fmt.Errorf("Could not parse block hex; %s", err)
+	}
+
+	fmt.Printf("Hash: %s\n", block.Hash)
+	fmt.Printf("Version: %d\n", block.Version)
+	fmt.Printf("Height: %d\n", block.Height)
+	fmt.Printf("PrevBlockHash: %s\n", block.PrevBlockHash)
+	fmt.Printf("MerkleRoot: %s\n", block.MerkleRoot)
+	fmt.Printf("Time: %d\n", block.Time)
+	fmt.Printf("NBits: %d\n", block.NBits)
+	fmt.Printf("Nonce: %d\n", block.Nonce)
+	fmt.Printf("TxCount: %d\n", block.TxCount)
+
+	fmt.Println("\nTransactions:")
+
+	for _, tx := range block.Transactions {
+		fmt.Printf("TxId: %s\n", tx.TxId)
+		fmt.Printf("Size: %d\n", tx.Size)
+		fmt.Printf("Version: %d\n", tx.Version)
+		fmt.Printf("Locktime: %d\n", tx.Locktime)
+		for _, txin := range tx.Vin {
+			fmt.Println("\nTransaction Inputs:")
+			fmt.Printf("Hash: %s\n", txin.Hash)
+			fmt.Printf("Index: %d\n", txin.Index)
+			fmt.Printf("Script: %s\n", txin.Script)
+			fmt.Printf("Sequence: %d\n", txin.Sequence)
+			fmt.Printf("ScriptWitness: %s\n", txin.ScriptWitness)
+		}
+		for _, txout := range tx.Vout {
+			fmt.Println("\nTransaction Outputs:")
+			fmt.Printf("Value: %d\n", txout.Value)
+			fmt.Printf("Script: %s\n", txout.Script)
+		}
+	}
+
+	// Output: Hash: 000000008f1a7008320c16b8402b7f11e82951f44ca2663caf6860ab2eeef320
+	// Version: 1
+	// Height: 0
+	// PrevBlockHash: 00000000b7691ccc084542565697eca256e56bb7f67e560b48789db27f0468eb
+	// MerkleRoot: 2b1f06c2401d3b49a33c3f5ad5864c0bc70044c4068f9174546f3cfc1887d5ba
+	// Time: 1231753120
+	// NBits: 486604799
+	// Nonce: 1832536838
+	// TxCount: 1
+	//
+	// Transactions:
+	// TxId: 2b1f06c2401d3b49a33c3f5ad5864c0bc70044c4068f9174546f3cfc1887d5ba
+	// Size: 134
+	// Version: 1
+	// Locktime: 0
+	//
+	// Transaction Inputs:
+	// Hash: 0000000000000000000000000000000000000000000000000000000000000000
+	// Index: 4294967295
+	// Script: 04ffff001d0138
+	// Sequence: 4294967295
+	// ScriptWitness: []
+	//
+	// Transaction Outputs:
+	// Value: 5000000000
+	// Script: 41045e071dedd1ed03721c6e9bba28fc276795421a378637fb41090192bb9f208630dcbac5862a3baeb9df3ca6e4e256b7fd2404824c20198ca1b004ee2197866433ac
 }

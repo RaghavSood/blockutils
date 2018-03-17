@@ -21,7 +21,7 @@ func ReverseHex(b []byte) []byte {
 	return newb
 }
 
-// Computers a sha256(sha256(data)) for the given data
+// Computes a sha256(sha256(data)) for the given data.
 // Used for block headers, etc.
 func DoubleSha256(data []byte) Hash256 {
 	hash := sha256.New()
