@@ -63,6 +63,14 @@ func (r *ByteReader) ReadBytes(length uint64) []byte {
 // Allows you to view data without moving the cursor. Useful for cases to
 // lookahead on data, such as checking if a tx is a segwit tx
 
+func (r *ByteReader) PeekBytesFrom(start uint64, length uint64) []byte {
+	byteVals := r.Bytes[start : start+length]
+	return byteVals
+}
+
+// Allows you to view data without moving the cursor. Useful for cases to
+// lookahead on data, such as checking if a tx is a segwit tx
+
 func (r *ByteReader) PeekBytes(length uint64) []byte {
 	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
 	return byteVals
@@ -104,11 +112,13 @@ func (r *ByteReader) ReadCompactSizeUint() uint64 {
 // data from the tx, which amounts to the two flag and mask bytes after the
 // tx version and the segwit data between the end of the last output and the
 // locktime.
-func (r *ByteReader) StripSegwit(outputendpos uint64) []byte {
-	txlength := len(r.Bytes)
+func (r *ByteReader) StripSegwit(txstartpos uint64, outputendpos uint64, nlocktimepos uint64) []byte {
+	txlength := nlocktimepos - txstartpos + 4
 	dup := make([]byte, txlength)
-	copy(dup, r.Bytes)
-	noLocktime := append(dup[0:4], dup[6:outputendpos]...)
-	withLocktime := append(noLocktime, dup[len(dup)-4:]...)
+	dup = CopyFromIndex(r.Bytes, txstartpos, txlength)
+	outputendpos = outputendpos - txstartpos
+	txstartpos = 0
+	noLocktime := append(dup[txstartpos:txstartpos+4], dup[txstartpos+6:outputendpos]...)
+	withLocktime := append(noLocktime, dup[txlength-4:txlength]...)
 	return withLocktime
 }

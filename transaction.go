@@ -11,33 +11,36 @@ type Script []byte
 type WitnessScript [][]byte
 
 // A Transaction represents a complete Bitcoin-like transaction
+//
 // TxId should be used for the transaction id
 type Transaction struct {
-	Hash     Hash256    `json:"hash"` // not actually in blockchain data; calculated
-	TxId     Hash256    `json:"txid"` // not actually in blockchain data; calculated
-	Version  uint32     `json:"version"`
-	Locktime uint32     `json:"locktime"`
-	Vin      []TxInput  `json:"vin"`
-	Vout     []TxOutput `json:"vout"`
+	Hash     Hash256 // not actually in blockchain data; calculated
+	TxId     Hash256 // not actually in blockchain data; calculated
+	Version  uint32
+	Locktime uint32
+	Vin      []TxInput
+	Vout     []TxOutput
+	Size     uint64
 }
 
 // Represents a single transaction output
+//
 // Each tx input includes the previous out point (a null hash for coinbase txs)
 // the previous tx vout index, the script for this input, and the input sequence.
 // If the transaction is a segwit transaction, ScriptWitness will contain the
 // segwit stack for this input, and script will not contain a signature
 type TxInput struct {
-	Hash          Hash256       `json:"hash"`
-	Index         uint32        `json:"index"`
-	Script        Script        `json:"scriptSig"`
-	Sequence      uint32        `json:"sequence"`
-	ScriptWitness WitnessScript `json:"witness"`
+	Hash          Hash256
+	Index         uint32
+	Script        Script
+	Sequence      uint32
+	ScriptWitness WitnessScript
 }
 
 // Represents a single transaction output, composed of its value and script
 type TxOutput struct {
-	Value  uint64 `json:"value"`
-	Script Script `json:"script"`
+	Value  uint64
+	Script Script
 }
 
 func readTxInput(txreader *ByteReader) (txin TxInput, err error) {
@@ -53,7 +56,6 @@ func readTxInput(txreader *ByteReader) (txin TxInput, err error) {
 		Script:   script,
 		Sequence: sequence,
 	}
-
 	return txin, err
 }
 
@@ -91,84 +93,12 @@ func readWitnessData(txreader *ByteReader, vinsize uint64) (witnessData [][][]by
 
 // Parses a given byte array into a workable transaction
 func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
-	var err error
-	hash := DoubleSha256(txbytes)
-	txid := hash // Tx ID is the same as the hash for non-segwit transactions
-	isSegwit := false
-	outputendpos := uint64(0)
-
 	txreader := ByteReader{
 		Bytes:  txbytes,
 		Cursor: 0,
 	}
 
-	// First 4 bytes of a tx are the tx version; most chains only have version 1
-	version := txreader.ReadUint32()
-
-	// If this is a segwit tx, the first two bytes following the version will be 0x00 0x01
-	// We can peek these bytes to see if it is a purely segwit tx
-	// This works because the immediate next byte after the version will never be 0x00 (except)
-	// for coinbase transactions, where the following byte will then never be 0x01, as the input
-	// tx is a null hash in coinbase transactions
-	potentialSegwitFlag := txreader.PeekBytes(2)
-	if potentialSegwitFlag[0] == 0x00 && potentialSegwitFlag[1] == 0x01 {
-		isSegwit = true
-		txreader.ReadBytes(2)
-	}
-
-	// After the version is a variable int specifying how many inputs this tx has
-	vinsize := txreader.ReadCompactSizeUint()
-
-	i := uint64(0)
-	txins := make([]TxInput, vinsize)
-	for i < vinsize {
-		txins[i], err = readTxInput(&txreader)
-		if err != nil {
-			return nil, err
-		}
-		i += 1
-	}
-
-	voutsize := txreader.ReadCompactSizeUint()
-	txouts := make([]TxOutput, voutsize)
-	i = uint64(0)
-	for i < voutsize {
-		txouts[i], err = readTxOutput(&txreader)
-		if err != nil {
-			return nil, err
-		}
-		i += 1
-	}
-	outputendpos = txreader.Cursor
-
-	if isSegwit {
-		witnessData, err := readWitnessData(&txreader, vinsize)
-		if err != nil {
-			return nil, err
-		}
-
-		for i, _ := range txins {
-			txins[i].ScriptWitness = witnessData[i]
-		}
-	}
-
-	locktime := txreader.ReadUint32() // The Lock time is always the last 4 bytes of a tx
-
-	if isSegwit {
-		originalFormat := txreader.StripSegwit(outputendpos) // This duplicates the original transaction and does not modify the underlying array
-		txid = DoubleSha256(originalFormat)
-	}
-
-	tx := &Transaction{
-		Version:  version,
-		Hash:     hash,
-		TxId:     txid,
-		Vin:      txins,
-		Vout:     txouts,
-		Locktime: locktime,
-	}
-
-	return tx, nil
+	return ReadTransactionFromReader(&txreader)
 }
 
 // Parses a given hex string into a workable transaction. Ideal for use against getrawtransaction
@@ -180,4 +110,89 @@ func NewTransactionFromHexString(hexstring string) (*Transaction, error) {
 	}
 
 	return NewTransactionFromBytes(txbytes)
+}
+
+func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
+	var err error
+	isSegwit := false
+	outputendpos := uint64(0)
+	txstartpos := b.Cursor
+	// First 4 bytes of a tx are the tx version; most chains only have version 1
+	version := b.ReadUint32()
+
+	// If this is a segwit tx, the first two bytes following the version will be 0x00 0x01
+	// We can peek these bytes to see if it is a purely segwit tx
+	// This works because the immediate next byte after the version will never be 0x00 (except)
+	// for coinbase transactions, where the following byte will then never be 0x01, as the input
+	// tx is a null hash in coinbase transactions
+	potentialSegwitFlag := b.PeekBytes(2)
+	if potentialSegwitFlag[0] == 0x00 && potentialSegwitFlag[1] == 0x01 {
+		isSegwit = true
+		b.ReadBytes(2)
+	}
+
+	// After the version is a variable int specifying how many inputs this tx has
+	vinsize := b.ReadCompactSizeUint()
+
+	i := uint64(0)
+	txins := make([]TxInput, vinsize)
+	for i < vinsize {
+		txins[i], err = readTxInput(b)
+		if err != nil {
+			return nil, err
+		}
+		i += 1
+	}
+
+	voutsize := b.ReadCompactSizeUint()
+	txouts := make([]TxOutput, voutsize)
+	i = uint64(0)
+	for i < voutsize {
+		txouts[i], err = readTxOutput(b)
+		if err != nil {
+			return nil, err
+		}
+		i += 1
+	}
+	outputendpos = b.Cursor
+
+	if isSegwit {
+		witnessData, err := readWitnessData(b, vinsize)
+		if err != nil {
+			return nil, err
+		}
+
+		for i, _ := range txins {
+			txins[i].ScriptWitness = witnessData[i]
+		}
+	}
+
+	nlocktimepos := b.Cursor
+	locktime := b.ReadUint32() // The Lock time is always the last 4 bytes of a tx
+
+	txlength := nlocktimepos - txstartpos + 4
+
+	hash := DoubleSha256(b.PeekBytesFrom(txstartpos, txlength))
+	txid := hash // Tx ID is the same as the hash for non-segwit transactions
+
+	if isSegwit {
+		originalFormat := b.StripSegwit(txstartpos, outputendpos, nlocktimepos) // This duplicates the original transaction and does not modify the underlying array
+		txid = DoubleSha256(originalFormat)
+	}
+
+	// if AllZero(txins[0].Hash) {
+	// 	txins = make([]TxInput, 0, 0)
+	// }
+
+	tx := &Transaction{
+		Version:  version,
+		Hash:     hash,
+		TxId:     txid,
+		Vin:      txins,
+		Vout:     txouts,
+		Locktime: locktime,
+		Size:     txlength,
+	}
+
+	return tx, nil
 }

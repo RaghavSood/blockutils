@@ -43,3 +43,24 @@ func (witness WitnessScript) String() string {
 	// return hex.EncodeToString(witness[0])
 	return "[" + strings.Join(hexStrings, " ") + "]"
 }
+
+func AllZero(s []byte) bool {
+	for _, v := range s {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func CopyFromIndex(input []byte, start uint64, length uint64) []byte {
+	output := make([]byte, length)
+
+	i := uint64(0)
+	for i < length {
+		output[i] = input[start+i]
+		i += 1
+	}
+
+	return output
+}

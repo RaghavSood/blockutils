@@ -16,7 +16,7 @@ func TestDigiByteTx(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not parse tx hex; %s", err)
 	}
-	spew.Dump(tx)
+	// spew.Dump(tx)
 
 	if tx.Version != 1 {
 		t.Errorf("Invalid tx version. Expect %d, got %d", 1, tx.Version)
@@ -45,6 +45,10 @@ func TestDigiByteCoinbaseTx(t *testing.T) {
 		t.Errorf("Could not parse tx hex; %s", err)
 	}
 	spew.Dump(tx)
+
+	if len(tx.Vin) != 1 {
+		t.Errorf("Invalid input count. Expected %d, found %d", 1, len(tx.Vin))
+	}
 }
 
 func TestLitecoinSegwitTx(t *testing.T) {
@@ -52,7 +56,11 @@ func TestLitecoinSegwitTx(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not parse tx hex; %s", err)
 	}
-	spew.Dump(tx)
+	// spew.Dump(tx)
+
+	if len(tx.Vin) != 1 {
+		t.Errorf("Invalid input count. Expected %d, found %d", 1, len(tx.Vin))
+	}
 }
 
 func Test7VinLitecoinSegwitTx(t *testing.T) {
@@ -60,5 +68,9 @@ func Test7VinLitecoinSegwitTx(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not parse tx hex; %s", err)
 	}
-	spew.Dump(tx)
+	// spew.Dump(tx)
+
+	if len(tx.Vin) != 7 {
+		t.Errorf("Invalid input count. Expected %d, found %d", 7, len(tx.Vin))
+	}
 }
