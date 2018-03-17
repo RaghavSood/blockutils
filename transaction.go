@@ -9,13 +9,8 @@ import (
 
 type Script []byte
 
-func (script Script) String() string {
-	return hex.EncodeToString(script)
-}
-
 type Transaction struct {
 	Hash     Hash256 // not actually in blockchain data; calculated
-	Hashstr  string  // not actually in blockchain data; calculated
 	Version  uint32
 	Locktime uint32
 	Vin      []TxInput
@@ -31,7 +26,7 @@ type TxInput struct {
 }
 
 type TxOutput struct {
-	Value  int64
+	Value  uint64
 	Script Script
 }
 
@@ -52,10 +47,22 @@ func readTxInput(txreader *ByteReader) (txin TxInput, err error) {
 	return txin, err
 }
 
+func readTxOutput(txreader *ByteReader) (txout TxOutput, err error) {
+	value := txreader.ReadUint64()                 // First 8 bytes are the value of the output
+	scriptlength := txreader.ReadCompactSizeUint() // ... followed up the script length
+	script := txreader.ReadBytes(scriptlength)     // ... followed by the actual script
+
+	txout = TxOutput{
+		Value:  value,
+		Script: script,
+	}
+
+	return txout, err
+}
+
 func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	var err error
 	txid := DoubleSha256(txbytes)
-	txidstr := hex.EncodeToString(ReverseHex(txid))
 
 	txreader := ByteReader{
 		Bytes:  txbytes,
@@ -78,11 +85,25 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 		i += 1
 	}
 
+	voutsize := txreader.ReadCompactSizeUint()
+	txouts := make([]TxOutput, voutsize)
+	i = uint64(0)
+	for i < voutsize {
+		txouts[i], err = readTxOutput(&txreader)
+		if err != nil {
+			return nil, err
+		}
+		i += 1
+	}
+
+	locktime := txreader.ReadUint32()
+
 	tx := &Transaction{
-		Version: version,
-		Hash:    txid,
-		Hashstr: txidstr,
-		Vin:     txins,
+		Version:  version,
+		Hash:     txid,
+		Vin:      txins,
+		Vout:     txouts,
+		Locktime: locktime,
 	}
 
 	return tx, nil

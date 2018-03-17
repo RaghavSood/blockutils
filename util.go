@@ -2,6 +2,7 @@ package blockutils
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 )
 
 // TODO: Maybe can optimize
@@ -23,4 +24,12 @@ func DoubleSha256(data []byte) Hash256 {
 	hash.Reset()
 	hash.Write(firstSha256)
 	return hash.Sum(nil)
+}
+
+func (script Script) String() string {
+	return hex.EncodeToString(script)
+}
+
+func (hash256 Hash256) String() string {
+	return hex.EncodeToString(ReverseHex(hash256))
 }
