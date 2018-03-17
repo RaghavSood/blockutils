@@ -99,7 +99,7 @@ func (r *ByteReader) ReadCompactSizeUint() uint64 {
 }
 
 // For segwit transactions, the canonical sha256(sha256(txhex)) returns
-// and incorrect hash. The valid txid needs to be calculated from the tx
+// an incorrect hash. The valid txid needs to be calculated from the tx
 // as encodied in the original tx format. This requires us to strip the segwit
 // data from the tx, which amounts to the two flag and mask bytes after the
 // tx version and the segwit data between the end of the last output and the

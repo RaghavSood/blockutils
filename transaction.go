@@ -10,6 +10,8 @@ import (
 type Script []byte
 type WitnessScript [][]byte
 
+// A Transaction represents a complete Bitcoin-like transaction
+// TxId should be used for the transaction id
 type Transaction struct {
 	Hash     Hash256    `json:"hash"` // not actually in blockchain data; calculated
 	TxId     Hash256    `json:"txid"` // not actually in blockchain data; calculated
@@ -19,6 +21,11 @@ type Transaction struct {
 	Vout     []TxOutput `json:"vout"`
 }
 
+// Represents a single transaction output
+// Each tx input includes the previous out point (a null hash for coinbase txs)
+// the previous tx vout index, the script for this input, and the input sequence.
+// If the transaction is a segwit transaction, ScriptWitness will contain the
+// segwit stack for this input, and script will not contain a signature
 type TxInput struct {
 	Hash          Hash256       `json:"hash"`
 	Index         uint32        `json:"index"`
@@ -27,6 +34,7 @@ type TxInput struct {
 	ScriptWitness WitnessScript `json:"witness"`
 }
 
+// Represents a single transaction output, composed of its value and script
 type TxOutput struct {
 	Value  uint64 `json:"value"`
 	Script Script `json:"script"`
@@ -81,6 +89,7 @@ func readWitnessData(txreader *ByteReader, vinsize uint64) (witnessData [][][]by
 	return witnessData, nil
 }
 
+// Parses a given byte array into a workable transaction
 func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	var err error
 	hash := DoubleSha256(txbytes)
@@ -162,6 +171,7 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	return tx, nil
 }
 
+// Parses a given hex string into a workable transaction. Ideal for use against getrawtransaction
 func NewTransactionFromHexString(hexstring string) (*Transaction, error) {
 	fmt.Println("BlockUtils")
 	txbytes, err := hex.DecodeString(hexstring)
