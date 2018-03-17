@@ -12,7 +12,7 @@ const LENGTH_UINT64 = 8
 
 type ByteReader struct {
 	Bytes  []byte
-	Cursor uint
+	Cursor uint64
 }
 
 func (r *ByteReader) ReadUint16() uint16 {
@@ -52,6 +52,12 @@ func (r *ByteReader) ReadByte() byte {
 	byteVal := r.Bytes[r.Cursor]
 	r.Cursor += 1
 	return byteVal
+}
+
+func (r *ByteReader) ReadBytes(length uint64) []byte {
+	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
+	r.Cursor += length
+	return byteVals
 }
 
 /**

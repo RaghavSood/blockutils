@@ -35,7 +35,25 @@ type TxOutput struct {
 	Script Script
 }
 
+func readTxInput(txreader *ByteReader) (txin TxInput, err error) {
+	previoushash := txreader.ReadBytes(32)         // The first 32 bytes of a tx input are the prev hash
+	vout := txreader.ReadUint32()                  // ... followed by the vout index in the previous tx
+	scriptlength := txreader.ReadCompactSizeUint() // ... followed up the scriptSig length
+	script := txreader.ReadBytes(scriptlength)     // ... followed by the actual scriptSig
+	sequence := txreader.ReadUint32()              // ... terminated by the sequence number
+
+	txin = TxInput{
+		Hash:     previoushash,
+		Index:    vout,
+		Script:   script,
+		Sequence: sequence,
+	}
+
+	return txin, err
+}
+
 func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
+	var err error
 	txid := DoubleSha256(txbytes)
 	txidstr := hex.EncodeToString(ReverseHex(txid))
 
@@ -49,12 +67,22 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 
 	// After the version is a variable int specifying how many inputs this tx has
 	vinsize := txreader.ReadCompactSizeUint()
-	fmt.Println(vinsize)
+
+	i := uint64(0)
+	txins := make([]TxInput, vinsize)
+	for i < vinsize {
+		txins[i], err = readTxInput(&txreader)
+		if err != nil {
+			return nil, err
+		}
+		i += 1
+	}
 
 	tx := &Transaction{
 		Version: version,
 		Hash:    txid,
 		Hashstr: txidstr,
+		Vin:     txins,
 	}
 
 	return tx, nil
