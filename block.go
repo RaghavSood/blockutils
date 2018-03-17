@@ -66,17 +66,14 @@ func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 		i += 1
 	}
 	blockNumber := uint64(0)
-	if version >= 2 {
+	if version >= 2 { // The block number is only defined in the coinbase tx if v>=2
 		coinbaseReader := ByteReader{
 			Bytes:  txs[0].Vin[0].Script,
 			Cursor: 0,
 		}
 
 		blockNumberLength := uint64(coinbaseReader.readByte())
-		fmt.Println(blockNumberLength)
 		blockHeightBytes := coinbaseReader.readBytes(blockNumberLength)
-		fmt.Println(blockHeightBytes)
-		fmt.Println(bytesToUInt64(blockHeightBytes))
 		blockNumber = bytesToUInt64(blockHeightBytes)
 	}
 
