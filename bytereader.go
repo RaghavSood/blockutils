@@ -60,30 +60,30 @@ func (r *ByteReader) ReadBytes(length uint64) []byte {
 	return byteVals
 }
 
+// Allows you to view data without moving the cursor. Useful for cases to
+// lookahead on data, such as checking if a tx is a segwit tx
+
 func (r *ByteReader) PeekBytes(length uint64) []byte {
 	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
 	return byteVals
 }
 
-/**
- * A compact size uint is defined as follows in the original satoshi code
- * (it has since been somewhat replaced by CVarInt in present day bitcoin)
- *
- * if the first byte is >= 0x00 and <= 0xFC, it is interpreted as an uint8
- * total length 1 byte
- *
- * if the first byte is 0xFD, the next 2 bytes interpreted as an uint16
- * total length 3 bytes
- *
- * if the first byte is 0xFE, the next 4 bytes interpreted as an uint32
- * total length 5 bytes
- *
- * if the first byte is 0xFF, the next 8 bytes interpreted as an uint64
- * total length 9 bytes
- *
- * We always return a uint64
- */
-
+// A compact size uint is defined as follows in the original satoshi code
+// (it has since been somewhat replaced by CVarInt in present day bitcoin)
+//
+// if the first byte is >= 0x00 and <= 0xFC, it is interpreted as an uint8
+// total length 1 byte
+//
+// if the first byte is 0xFD, the next 2 bytes interpreted as an uint16
+// total length 3 bytes
+//
+// if the first byte is 0xFE, the next 4 bytes interpreted as an uint32
+// total length 5 bytes
+//
+// if the first byte is 0xFF, the next 8 bytes interpreted as an uint64
+// total length 9 bytes
+//
+// Always returns a uint64
 func (r *ByteReader) ReadCompactSizeUint() uint64 {
 	intType := r.ReadByte()
 	switch intType {
@@ -98,6 +98,12 @@ func (r *ByteReader) ReadCompactSizeUint() uint64 {
 	}
 }
 
+// For segwit transactions, the canonical sha256(sha256(txhex)) returns
+// and incorrect hash. The valid txid needs to be calculated from the tx
+// as encodied in the original tx format. This requires us to strip the segwit
+// data from the tx, which amounts to the two flag and mask bytes after the
+// tx version and the segwit data between the end of the last output and the
+// locktime.
 func (r *ByteReader) StripSegwit(outputendpos uint64) []byte {
 	txlength := len(r.Bytes)
 	dup := make([]byte, txlength)
