@@ -47,6 +47,7 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	// First 4 bytes of a tx are the tx version; most chains only have version 1
 	version := txreader.ReadUint32()
 
+	// After the version is a variable int specifying how many inputs this tx has
 	vinsize := txreader.ReadCompactSizeUint()
 	fmt.Println(vinsize)
 
