@@ -1,7 +1,9 @@
 package blockutils
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"strings"
 )
@@ -53,6 +55,12 @@ func AllZero(s []byte) bool {
 	return true
 }
 
+func bytesToUInt64(input []byte) (ret uint64) {
+	buf := bytes.NewBuffer(padByteArray(input, 8))
+	binary.Read(buf, binary.LittleEndian, &ret)
+	return ret
+}
+
 func copyFromIndex(input []byte, start uint64, length uint64) []byte {
 	output := make([]byte, length)
 
@@ -63,4 +71,15 @@ func copyFromIndex(input []byte, start uint64, length uint64) []byte {
 	}
 
 	return output
+}
+
+func padByteArray(input []byte, size int) []byte {
+	l := len(input)
+	if l == size {
+		return input
+	}
+
+	tmp := make([]byte, size)
+	copy(tmp, input)
+	return tmp
 }
