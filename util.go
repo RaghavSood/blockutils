@@ -53,7 +53,7 @@ func AllZero(s []byte) bool {
 	return true
 }
 
-func CopyFromIndex(input []byte, start uint64, length uint64) []byte {
+func copyFromIndex(input []byte, start uint64, length uint64) []byte {
 	output := make([]byte, length)
 
 	i := uint64(0)

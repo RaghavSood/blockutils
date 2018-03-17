@@ -1,13 +1,16 @@
 package blockutils
 
 import (
-	// "encoding/binary"
 	"encoding/hex"
-	// "errors"
 	"fmt"
 )
 
+// Bitcoin script type backed by a byte array
 type Script []byte
+
+// Bitcoin witness script type backed by a 2d byte array
+// The string function is particularly helpful for working
+// with the stack
 type WitnessScript [][]byte
 
 // A Transaction represents a complete Bitcoin-like transaction
@@ -44,11 +47,11 @@ type TxOutput struct {
 }
 
 func readTxInput(txreader *ByteReader) (txin TxInput, err error) {
-	previoushash := txreader.ReadBytes(32)         // The first 32 bytes of a tx input are the prev hash
-	vout := txreader.ReadUint32()                  // ... followed by the vout index in the previous tx
-	scriptlength := txreader.ReadCompactSizeUint() // ... followed up the scriptSig length
-	script := txreader.ReadBytes(scriptlength)     // ... followed by the actual scriptSig
-	sequence := txreader.ReadUint32()              // ... terminated by the sequence number
+	previoushash := txreader.readBytes(32)         // The first 32 bytes of a tx input are the prev hash
+	vout := txreader.readUint32()                  // ... followed by the vout index in the previous tx
+	scriptlength := txreader.readCompactSizeUint() // ... followed up the scriptSig length
+	script := txreader.readBytes(scriptlength)     // ... followed by the actual scriptSig
+	sequence := txreader.readUint32()              // ... terminated by the sequence number
 
 	txin = TxInput{
 		Hash:     previoushash,
@@ -60,9 +63,9 @@ func readTxInput(txreader *ByteReader) (txin TxInput, err error) {
 }
 
 func readTxOutput(txreader *ByteReader) (txout TxOutput, err error) {
-	value := txreader.ReadUint64()                 // First 8 bytes are the value of the output
-	scriptlength := txreader.ReadCompactSizeUint() // ... followed up the script length
-	script := txreader.ReadBytes(scriptlength)     // ... followed by the actual script
+	value := txreader.readUint64()                 // First 8 bytes are the value of the output
+	scriptlength := txreader.readCompactSizeUint() // ... followed up the script length
+	script := txreader.readBytes(scriptlength)     // ... followed by the actual script
 
 	txout = TxOutput{
 		Value:  value,
@@ -76,13 +79,13 @@ func readWitnessData(txreader *ByteReader, vinsize uint64) (witnessData [][][]by
 	i := uint64(0)
 	witnessData = make([][][]byte, vinsize)
 	for i < vinsize { // There is one witness stack for each input
-		stackSize := txreader.ReadCompactSizeUint() // Each stack has a length defined by a compact int
+		stackSize := txreader.readCompactSizeUint() // Each stack has a length defined by a compact int
 		witnessData[i] = make([][]byte, stackSize)
 		j := uint64(0)
 		for j < stackSize {
-			stackItemLength := txreader.ReadCompactSizeUint() // Each stack item's length is also defined by a compact int
+			stackItemLength := txreader.readCompactSizeUint() // Each stack item's length is also defined by a compact int
 			witnessData[i][j] = make([]byte, stackItemLength)
-			stackItem := txreader.ReadBytes(stackItemLength) // Read the actual stack item
+			stackItem := txreader.readBytes(stackItemLength) // Read the actual stack item
 			witnessData[i][j] = stackItem
 			j += 1
 		}
@@ -118,21 +121,21 @@ func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
 	outputendpos := uint64(0)
 	txstartpos := b.Cursor
 	// First 4 bytes of a tx are the tx version; most chains only have version 1
-	version := b.ReadUint32()
+	version := b.readUint32()
 
 	// If this is a segwit tx, the first two bytes following the version will be 0x00 0x01
 	// We can peek these bytes to see if it is a purely segwit tx
 	// This works because the immediate next byte after the version will never be 0x00 (except)
 	// for coinbase transactions, where the following byte will then never be 0x01, as the input
 	// tx is a null hash in coinbase transactions
-	potentialSegwitFlag := b.PeekBytes(2)
+	potentialSegwitFlag := b.peekBytes(2)
 	if potentialSegwitFlag[0] == 0x00 && potentialSegwitFlag[1] == 0x01 {
 		isSegwit = true
-		b.ReadBytes(2)
+		b.readBytes(2)
 	}
 
 	// After the version is a variable int specifying how many inputs this tx has
-	vinsize := b.ReadCompactSizeUint()
+	vinsize := b.readCompactSizeUint()
 
 	i := uint64(0)
 	txins := make([]TxInput, vinsize)
@@ -144,7 +147,7 @@ func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
 		i += 1
 	}
 
-	voutsize := b.ReadCompactSizeUint()
+	voutsize := b.readCompactSizeUint()
 	txouts := make([]TxOutput, voutsize)
 	i = uint64(0)
 	for i < voutsize {
@@ -168,15 +171,15 @@ func ReadTransactionFromReader(b *ByteReader) (*Transaction, error) {
 	}
 
 	nlocktimepos := b.Cursor
-	locktime := b.ReadUint32() // The Lock time is always the last 4 bytes of a tx
+	locktime := b.readUint32() // The Lock time is always the last 4 bytes of a tx
 
 	txlength := nlocktimepos - txstartpos + 4
 
-	hash := DoubleSha256(b.PeekBytesFrom(txstartpos, txlength))
+	hash := DoubleSha256(b.peekBytesFrom(txstartpos, txlength))
 	txid := hash // Tx ID is the same as the hash for non-segwit transactions
 
 	if isSegwit {
-		originalFormat := b.StripSegwit(txstartpos, outputendpos, nlocktimepos) // This duplicates the original transaction and does not modify the underlying array
+		originalFormat := b.stripSegwit(txstartpos, outputendpos, nlocktimepos) // This duplicates the original transaction and does not modify the underlying array
 		txid = DoubleSha256(originalFormat)
 	}
 

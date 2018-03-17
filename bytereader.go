@@ -15,7 +15,7 @@ type ByteReader struct {
 	Cursor uint64
 }
 
-func (r *ByteReader) ReadUint16() uint16 {
+func (r *ByteReader) readUint16() uint16 {
 	val := uint16(0)
 	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+LENGTH_UINT16])
 	err := binary.Read(buf, binary.LittleEndian, &val)
@@ -26,7 +26,7 @@ func (r *ByteReader) ReadUint16() uint16 {
 	return val
 }
 
-func (r *ByteReader) ReadUint32() uint32 {
+func (r *ByteReader) readUint32() uint32 {
 	val := uint32(0)
 	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+LENGTH_UINT32])
 	err := binary.Read(buf, binary.LittleEndian, &val)
@@ -37,7 +37,7 @@ func (r *ByteReader) ReadUint32() uint32 {
 	return val
 }
 
-func (r *ByteReader) ReadUint64() uint64 {
+func (r *ByteReader) readUint64() uint64 {
 	val := uint64(0)
 	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+LENGTH_UINT64])
 	err := binary.Read(buf, binary.LittleEndian, &val)
@@ -48,22 +48,23 @@ func (r *ByteReader) ReadUint64() uint64 {
 	return val
 }
 
-func (r *ByteReader) ReadByte() byte {
+func (r *ByteReader) readByte() byte {
 	byteVal := r.Bytes[r.Cursor]
 	r.Cursor += 1
 	return byteVal
 }
 
-func (r *ByteReader) ReadBytes(length uint64) []byte {
+func (r *ByteReader) readBytes(length uint64) []byte {
 	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
 	r.Cursor += length
 	return byteVals
 }
 
-// Allows you to view data without moving the cursor. Useful for cases to
-// lookahead on data, such as checking if a tx is a segwit tx
+// Allows you to view data without moving the cursor and from a start point.
+// Useful for cases to lookahead on data, such as checking if a tx is a
+// segwit tx
 
-func (r *ByteReader) PeekBytesFrom(start uint64, length uint64) []byte {
+func (r *ByteReader) peekBytesFrom(start uint64, length uint64) []byte {
 	byteVals := r.Bytes[start : start+length]
 	return byteVals
 }
@@ -71,7 +72,7 @@ func (r *ByteReader) PeekBytesFrom(start uint64, length uint64) []byte {
 // Allows you to view data without moving the cursor. Useful for cases to
 // lookahead on data, such as checking if a tx is a segwit tx
 
-func (r *ByteReader) PeekBytes(length uint64) []byte {
+func (r *ByteReader) peekBytes(length uint64) []byte {
 	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
 	return byteVals
 }
@@ -92,15 +93,15 @@ func (r *ByteReader) PeekBytes(length uint64) []byte {
 // total length 9 bytes
 //
 // Always returns a uint64
-func (r *ByteReader) ReadCompactSizeUint() uint64 {
-	intType := r.ReadByte()
+func (r *ByteReader) readCompactSizeUint() uint64 {
+	intType := r.readByte()
 	switch intType {
 	case 0xFF:
-		return r.ReadUint64()
+		return r.readUint64()
 	case 0xFE:
-		return uint64(r.ReadUint32())
+		return uint64(r.readUint32())
 	case 0xFD:
-		return uint64(r.ReadUint16())
+		return uint64(r.readUint16())
 	default:
 		return uint64(intType)
 	}
@@ -112,10 +113,10 @@ func (r *ByteReader) ReadCompactSizeUint() uint64 {
 // data from the tx, which amounts to the two flag and mask bytes after the
 // tx version and the segwit data between the end of the last output and the
 // locktime.
-func (r *ByteReader) StripSegwit(txstartpos uint64, outputendpos uint64, nlocktimepos uint64) []byte {
+func (r *ByteReader) stripSegwit(txstartpos uint64, outputendpos uint64, nlocktimepos uint64) []byte {
 	txlength := nlocktimepos - txstartpos + 4
 	dup := make([]byte, txlength)
-	dup = CopyFromIndex(r.Bytes, txstartpos, txlength)
+	dup = copyFromIndex(r.Bytes, txstartpos, txlength)
 	outputendpos = outputendpos - txstartpos
 	txstartpos = 0
 	noLocktime := append(dup[txstartpos:txstartpos+4], dup[txstartpos+6:outputendpos]...)
