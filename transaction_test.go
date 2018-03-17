@@ -37,6 +37,10 @@ func TestDigiByteTx(t *testing.T) {
 		t.Errorf("Incorrect lock time. Expected %d, found %d", 6257229, tx.Locktime)
 	}
 
+	if tx.Size != 373 {
+		t.Errorf("Incorrect tx size. Expected %d, found %d", 373, tx.Size)
+	}
+
 	if tx.Vin[0].Hash.String() != "78cd5d8d436ce383ef10d7a5c0fccfa9be41c8bbd33716e1e6b6f1c90b1092be" {
 		t.Errorf("TX ID did not match for input 0, expected %s, got %s", "78cd5d8d436ce383ef10d7a5c0fccfa9be41c8bbd33716e1e6b6f1c90b1092be", tx.Vin[0].Hash)
 	}
@@ -86,15 +90,66 @@ func TestDigiByteTx(t *testing.T) {
 	}
 }
 
+// https://digiexplorer.info/tx/b982c9ccdd9898456bf7d35daeb2bac2fa00d490cf4e2db2d1bd8c76ca5a9ffc
 func TestDigiByteCoinbaseTx(t *testing.T) {
 	tx, err := NewTransactionFromHexString(digibytetxcoinbase)
 	if err != nil {
 		t.Errorf("Could not parse tx hex; %s", err)
 	}
-	// spew.Dump(tx)
+	if tx.Version != 1 {
+		t.Errorf("Invalid tx version. Expect %d, got %d", 1, tx.Version)
+	}
+
+	if tx.TxId.String() != "b982c9ccdd9898456bf7d35daeb2bac2fa00d490cf4e2db2d1bd8c76ca5a9ffc" {
+		t.Errorf("TX ID did not match for digibyte tx, expected %s, got %s", "b982c9ccdd9898456bf7d35daeb2bac2fa00d490cf4e2db2d1bd8c76ca5a9ffc", tx.TxId)
+	}
 
 	if len(tx.Vin) != 1 {
 		t.Errorf("Invalid input count. Expected %d, found %d", 1, len(tx.Vin))
+	}
+
+	if len(tx.Vout) != 2 {
+		t.Errorf("Invalid output count. Expected %d, found %d", 2, len(tx.Vin))
+	}
+
+	if tx.Locktime != 0 {
+		t.Errorf("Incorrect lock time. Expected %d, found %d", 0, tx.Locktime)
+	}
+
+	if tx.Size != 192 {
+		t.Errorf("Incorrect tx size. Expected %d, found %d", 192, tx.Size)
+	}
+
+	if tx.Vin[0].Hash.String() != "0000000000000000000000000000000000000000000000000000000000000000" {
+		t.Errorf("TX ID did not match for input 0, expected %s, got %s", "0000000000000000000000000000000000000000000000000000000000000000", tx.Vin[0].Hash)
+	}
+
+	if tx.Vin[0].Index != 4294967295 {
+		t.Errorf("TX index did not match for input 0, expected %d, got %d", 4294967295, tx.Vin[0].Index)
+	}
+
+	if tx.Vin[0].Script.String() != "03527a5f04ea66ab5a08540000fd29000000052f6d70682f" {
+		t.Errorf("TX script did not match for input 0, expected %s, got %s", "03527a5f04ea66ab5a08540000fd29000000052f6d70682f", tx.Vin[0].Script)
+	}
+
+	if tx.Vin[0].Sequence != 0 {
+		t.Errorf("TX sequence did not match for input 0, expected %d, got %d", 0, tx.Vin[0].Sequence)
+	}
+
+	if tx.Vout[0].Value != 0 {
+		t.Errorf("TX value did not match for output 0, expected %d, got %d", 0, tx.Vout[0].Value)
+	}
+
+	if tx.Vout[1].Value != 79656858873 {
+		t.Errorf("TX value did not match for output 1, expected %d, got %d", 79656858873, tx.Vout[1].Value)
+	}
+
+	if tx.Vout[0].Script.String() != "6a24aa21a9ed735a4c6d92c7bc860c0558bf0b49feb40e553dffe846613bd6d6bac983473d2c" {
+		t.Errorf("TX script did not match for output 0, expected %s, got %s", "6a24aa21a9ed735a4c6d92c7bc860c0558bf0b49feb40e553dffe846613bd6d6bac983473d2c", tx.Vout[0].Script)
+	}
+
+	if tx.Vout[1].Script.String() != "76a914510fffca0668d410aea742e95a2fefa7952f695e88ac" {
+		t.Errorf("TX script did not match for output 1, expected %s, got %s", "76a914510fffca0668d410aea742e95a2fefa7952f695e88ac", tx.Vout[1].Script)
 	}
 }
 

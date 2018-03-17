@@ -2,7 +2,6 @@ package blockutils
 
 import (
 	"encoding/hex"
-	"fmt"
 )
 
 // Bitcoin script type backed by a byte array
@@ -18,6 +17,7 @@ type WitnessScript [][]byte
 // A Transaction represents a complete Bitcoin-like transaction
 //
 // TxId should be used for the transaction id
+
 type Transaction struct {
 	Hash     Hash256 // not actually in blockchain data; calculated
 	TxId     Hash256 // not actually in blockchain data; calculated
@@ -34,6 +34,11 @@ type Transaction struct {
 // the previous tx vout index, the script for this input, and the input sequence.
 // If the transaction is a segwit transaction, ScriptWitness will contain the
 // segwit stack for this input, and script will not contain a signature
+//
+// If the transaction is a coinbase tx, Index is 4294967295 (0xFFFFFFFF),
+// and Hash is set to a null hash
+// (0000000000000000000000000000000000000000000000000000000000000000), and
+// Script contains the coinbase script
 type TxInput struct {
 	Hash          Hash256
 	Index         uint32
@@ -110,7 +115,6 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 // Parses a given hex string into a workable transaction. Ideal for use against
 // getrawtransaction and insight-api etc.
 func NewTransactionFromHexString(hexstring string) (*Transaction, error) {
-	fmt.Println("BlockUtils")
 	txbytes, err := hex.DecodeString(hexstring)
 	if err != nil {
 		return nil, err

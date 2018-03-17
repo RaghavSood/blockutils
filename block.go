@@ -2,13 +2,17 @@ package blockutils
 
 import (
 	"encoding/hex"
-	"fmt"
 )
 
 // Identical to bitcoin Script in transaction.go
 // Just for better readability
 type Hash256 []byte
 
+// Represents a single block in a blockchain.
+// blockutils does not validate transactions or blocks.
+// Height is only provided for blocks with version 2 or higher
+// and is 0 otherwise (be careful when dealing with that)
+// Time is a unix timestamp
 type Block struct {
 	Version       uint32
 	PrevBlockHash Hash256
@@ -25,7 +29,6 @@ type Block struct {
 // Returns a block parsed from the given hexstring (such as
 // from `getblock` or insight-api)
 func NewBlockFromHexString(hexstring string) (*Block, error) {
-	fmt.Println("BlockUtils Block")
 	txbytes, err := hex.DecodeString(hexstring)
 	if err != nil {
 		return nil, err
@@ -78,9 +81,9 @@ func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 			Cursor: 0,
 		}
 
-		blockNumberLength := uint64(coinbaseReader.readByte())
-		blockHeightBytes := coinbaseReader.readBytes(blockNumberLength)
-		blockNumber = bytesToUInt64(blockHeightBytes)
+		blockNumberLength := uint64(coinbaseReader.readByte())          // The first byte specifies the length of the block number
+		blockHeightBytes := coinbaseReader.readBytes(blockNumberLength) // Read the actual block number bytes
+		blockNumber = bytesToUInt64(blockHeightBytes)                   // Convert to uint64
 	}
 
 	block := &Block{

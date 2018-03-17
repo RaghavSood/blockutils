@@ -45,10 +45,11 @@ func (witness WitnessScript) String() string {
 	for i, _ := range witness {
 		hexStrings[i] = hex.EncodeToString(witness[i])
 	}
-	// return hex.EncodeToString(witness[0])
 	return "[" + strings.Join(hexStrings, " ") + "]"
 }
 
+// Returns true if a byte array is all 0.
+// Useful for checking coinbase inputs
 func AllZero(s []byte) bool {
 	for _, v := range s {
 		if v != 0 {
@@ -76,6 +77,7 @@ func copyFromIndex(input []byte, start uint64, length uint64) []byte {
 	return output
 }
 
+// We need to pad the block number bytes to fit uint64
 func padByteArray(input []byte, size int) []byte {
 	l := len(input)
 	if l == size {
