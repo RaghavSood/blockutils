@@ -12,7 +12,7 @@ type WitnessScript [][]byte
 
 type Transaction struct {
 	Hash     Hash256    `json:"hash"` // not actually in blockchain data; calculated
-	TxId     Hash256    `json:"txid"`
+	TxId     Hash256    `json:"txid"` // not actually in blockchain data; calculated
 	Version  uint32     `json:"version"`
 	Locktime uint32     `json:"locktime"`
 	Vin      []TxInput  `json:"vin"`
@@ -65,12 +65,12 @@ func readTxOutput(txreader *ByteReader) (txout TxOutput, err error) {
 func readWitnessData(txreader *ByteReader, vinsize uint64) (witnessData [][][]byte, err error) {
 	i := uint64(0)
 	witnessData = make([][][]byte, vinsize)
-	for i < vinsize { //There is one witness stack for each input
+	for i < vinsize { // There is one witness stack for each input
 		stackSize := txreader.ReadCompactSizeUint() // Each stack has a length defined by a compact int
 		witnessData[i] = make([][]byte, stackSize)
 		j := uint64(0)
 		for j < stackSize {
-			stackItemLength := txreader.ReadCompactSizeUint() //Each stack item's length is also defined by a compact int
+			stackItemLength := txreader.ReadCompactSizeUint() // Each stack item's length is also defined by a compact int
 			witnessData[i][j] = make([]byte, stackItemLength)
 			stackItem := txreader.ReadBytes(stackItemLength) // Read the actual stack item
 			witnessData[i][j] = stackItem
@@ -84,8 +84,9 @@ func readWitnessData(txreader *ByteReader, vinsize uint64) (witnessData [][][]by
 func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 	var err error
 	hash := DoubleSha256(txbytes)
-	txid := hash
+	txid := hash // Tx ID is the same as the hash for non-segwit transactions
 	isSegwit := false
+	outputendpos := uint64(0)
 
 	txreader := ByteReader{
 		Bytes:  txbytes,
@@ -129,6 +130,7 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 		}
 		i += 1
 	}
+	outputendpos = txreader.Cursor
 
 	if isSegwit {
 		witnessData, err := readWitnessData(&txreader, vinsize)
@@ -141,7 +143,12 @@ func NewTransactionFromBytes(txbytes []byte) (*Transaction, error) {
 		}
 	}
 
-	locktime := txreader.ReadUint32()
+	locktime := txreader.ReadUint32() // The Lock time is always the last 4 bytes of a tx
+
+	if isSegwit {
+		originalFormat := txreader.StripSegwit(outputendpos) // This duplicates the original transaction and does not modify the underlying array
+		txid = DoubleSha256(originalFormat)
+	}
 
 	tx := &Transaction{
 		Version:  version,

@@ -97,3 +97,12 @@ func (r *ByteReader) ReadCompactSizeUint() uint64 {
 		return uint64(intType)
 	}
 }
+
+func (r *ByteReader) StripSegwit(outputendpos uint64) []byte {
+	txlength := len(r.Bytes)
+	dup := make([]byte, txlength)
+	copy(dup, r.Bytes)
+	noLocktime := append(dup[0:4], dup[6:outputendpos]...)
+	withLocktime := append(noLocktime, dup[len(dup)-4:]...)
+	return withLocktime
+}
