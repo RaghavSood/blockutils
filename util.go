@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"golang.org/x/crypto/ripemd160"
 	"strings"
 )
 
@@ -19,6 +20,14 @@ func ReverseHex(b []byte) []byte {
 	}
 
 	return newb
+}
+
+// Computes a reipemd160(data) for the given data.
+// Used for address and script serialization, etc.
+func Hash160(data []byte) Script {
+	hash := ripemd160.New()
+	hash.Write(data)
+	return hash.Sum(nil)
 }
 
 // Computes a sha256(data) for the given data.
