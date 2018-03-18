@@ -24,6 +24,7 @@ type Block struct {
 	TxCount       uint64
 	Transactions  []*Transaction
 	Height        uint64
+	Coinbase      Script
 }
 
 // Returns a block parsed from the given hexstring (such as
@@ -97,6 +98,7 @@ func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 		TxCount:       txcount,
 		Transactions:  txs,
 		Height:        blockNumber,
+		Coinbase:      txs[0].Vin[0].Script,
 	}
 
 	return block, err
