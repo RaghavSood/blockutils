@@ -9,6 +9,10 @@ import (
 // with the stack and getting it into a string representation
 type Script []byte
 
+func (script Script) IsOpReturn() bool {
+	return script[0] == 0x6a
+}
+
 func (script Script) IsP2PK() bool {
 	if len(script) != 67 && len(script) != 35 {
 		return false
