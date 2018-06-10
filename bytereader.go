@@ -15,7 +15,7 @@ type ByteReader struct {
 	Cursor uint64
 }
 
-func (r *ByteReader) readUint16() uint16 {
+func (r *ByteReader) ReadUint16() uint16 {
 	val := uint16(0)
 	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+length_UINT16])
 	err := binary.Read(buf, binary.LittleEndian, &val)
@@ -26,7 +26,7 @@ func (r *ByteReader) readUint16() uint16 {
 	return val
 }
 
-func (r *ByteReader) readUint32() uint32 {
+func (r *ByteReader) ReadUint32() uint32 {
 	val := uint32(0)
 	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+length_UINT32])
 	err := binary.Read(buf, binary.LittleEndian, &val)
@@ -37,7 +37,7 @@ func (r *ByteReader) readUint32() uint32 {
 	return val
 }
 
-func (r *ByteReader) readUint64() uint64 {
+func (r *ByteReader) ReadUint64() uint64 {
 	val := uint64(0)
 	buf := bytes.NewBuffer(r.Bytes[r.Cursor : r.Cursor+length_UINT64])
 	err := binary.Read(buf, binary.LittleEndian, &val)
@@ -48,13 +48,13 @@ func (r *ByteReader) readUint64() uint64 {
 	return val
 }
 
-func (r *ByteReader) readByte() byte {
+func (r *ByteReader) ReadByte() byte {
 	byteVal := r.Bytes[r.Cursor]
 	r.Cursor += 1
 	return byteVal
 }
 
-func (r *ByteReader) readBytes(length uint64) []byte {
+func (r *ByteReader) ReadBytes(length uint64) []byte {
 	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
 	r.Cursor += length
 	return byteVals
@@ -64,7 +64,7 @@ func (r *ByteReader) readBytes(length uint64) []byte {
 // Useful for cases to lookahead on data, such as checking if a tx is a
 // segwit tx
 
-func (r *ByteReader) peekBytesFrom(start uint64, length uint64) []byte {
+func (r *ByteReader) PeekBytesFrom(start uint64, length uint64) []byte {
 	byteVals := r.Bytes[start : start+length]
 	return byteVals
 }
@@ -72,7 +72,7 @@ func (r *ByteReader) peekBytesFrom(start uint64, length uint64) []byte {
 // Allows you to view data without moving the cursor. Useful for cases to
 // lookahead on data, such as checking if a tx is a segwit tx
 
-func (r *ByteReader) peekBytes(length uint64) []byte {
+func (r *ByteReader) PeekBytes(length uint64) []byte {
 	byteVals := r.Bytes[r.Cursor : r.Cursor+length]
 	return byteVals
 }
@@ -93,7 +93,7 @@ func (r *ByteReader) peekBytes(length uint64) []byte {
 // total length 9 bytes
 //
 // Always returns a uint64
-func (r *ByteReader) readCompactSizeUint() uint64 {
+func (r *ByteReader) ReadCompactSizeUint() uint64 {
 	intType := r.readByte()
 	switch intType {
 	case 0xFF:
