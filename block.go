@@ -50,19 +50,19 @@ func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 	// The block header is the first 80 bytes of a block
 	// We peek at it since we still need to read it for its
 	// information later on
-	blockheader := blockreader.peekBytes(80)
+	blockheader := blockreader.PeekBytes(80)
 
 	// Since the block header contains the tx merkleroot, hashing the
 	// header gives the block hash and automatically includes all the
 	// transactions
 	hash := DoubleSha256(blockheader)
-	version := blockreader.readUint32()          // The first 4 bytes of a block are the version and signal bits
-	prevhash := blockreader.readBytes(32)        // ... followed by the block hash of the previous block
-	merkleroot := blockreader.readBytes(32)      // ... followed by the tx merkle root
-	blockTime := blockreader.readUint32()        // ... followed by the unix mining time
-	blockbits := blockreader.readUint32()        // ... followed by the nbits
-	nonce := blockreader.readUint32()            // ... followed by the nonce. This terminates the block header
-	txcount := blockreader.readCompactSizeUint() // We then have the number of transactions in the blocks
+	version := blockreader.ReadUint32()          // The first 4 bytes of a block are the version and signal bits
+	prevhash := blockreader.ReadBytes(32)        // ... followed by the block hash of the previous block
+	merkleroot := blockreader.ReadBytes(32)      // ... followed by the tx merkle root
+	blockTime := blockreader.ReadUint32()        // ... followed by the unix mining time
+	blockbits := blockreader.ReadUint32()        // ... followed by the nbits
+	nonce := blockreader.ReadUint32()            // ... followed by the nonce. This terminates the block header
+	txcount := blockreader.ReadCompactSizeUint() // We then have the number of transactions in the blocks
 
 	txs := make([]*Transaction, txcount)
 	i := uint64(0)
@@ -82,8 +82,8 @@ func NewBlockFromBytes(blockbytes []byte) (*Block, error) {
 			Cursor: 0,
 		}
 
-		blockNumberLength := uint64(coinbaseReader.readByte())          // The first byte specifies the length of the block number
-		blockHeightBytes := coinbaseReader.readBytes(blockNumberLength) // Read the actual block number bytes
+		blockNumberLength := uint64(coinbaseReader.ReadByte())          // The first byte specifies the length of the block number
+		blockHeightBytes := coinbaseReader.ReadBytes(blockNumberLength) // Read the actual block number bytes
 		blockNumber = bytesToUInt64(blockHeightBytes)                   // Convert to uint64
 	}
 

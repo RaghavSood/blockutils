@@ -22,9 +22,9 @@ func (script Script) IsP2PK() bool {
 		Bytes:  script,
 		Cursor: 0,
 	}
-	pushLength := uint64(scriptReader.readByte())
-	scriptReader.readBytes(pushLength)
-	firstOp := scriptReader.readByte()
+	pushLength := uint64(scriptReader.ReadByte())
+	scriptReader.ReadBytes(pushLength)
+	firstOp := scriptReader.ReadByte()
 
 	if firstOp != 0xac {
 		return false
@@ -47,8 +47,8 @@ func (script Script) P2PKHash160() ([]byte, error) {
 		Cursor: 0,
 	}
 
-	pushLength := uint64(scriptReader.readByte())
-	pubkey := scriptReader.readBytes(pushLength)
+	pushLength := uint64(scriptReader.ReadByte())
+	pubkey := scriptReader.ReadBytes(pushLength)
 	return Hash160(Sha256(pubkey)), nil
 }
 
@@ -63,18 +63,18 @@ func (script Script) IsP2PKH() bool {
 		Cursor: 0,
 	}
 
-	firstOp := scriptReader.readByte()
-	secondOp := scriptReader.readByte()
+	firstOp := scriptReader.ReadByte()
+	secondOp := scriptReader.ReadByte()
 
 	if firstOp != 0x76 && secondOp != 0xa9 {
 		return false
 	}
 
-	pushLength := uint64(scriptReader.readByte())
-	scriptReader.readBytes(pushLength)
+	pushLength := uint64(scriptReader.ReadByte())
+	scriptReader.ReadBytes(pushLength)
 
-	thirdOp := scriptReader.readByte()
-	fourthOp := scriptReader.readByte()
+	thirdOp := scriptReader.ReadByte()
+	fourthOp := scriptReader.ReadByte()
 
 	if thirdOp != 0x88 && fourthOp != 0xac {
 		return false
@@ -97,9 +97,9 @@ func (script Script) P2PKHHash160() ([]byte, error) {
 		Cursor: 0,
 	}
 
-	scriptReader.readBytes(2)
-	pushLength := uint64(scriptReader.readByte())
-	return scriptReader.readBytes(pushLength), nil
+	scriptReader.ReadBytes(2)
+	pushLength := uint64(scriptReader.ReadByte())
+	return scriptReader.ReadBytes(pushLength), nil
 }
 
 func (script Script) IsP2SH() bool {
@@ -112,15 +112,15 @@ func (script Script) IsP2SH() bool {
 		Cursor: 0,
 	}
 
-	firstOp := scriptReader.readByte()
+	firstOp := scriptReader.ReadByte()
 	if firstOp != 0xa9 {
 		return false
 	}
 
-	pushLength := uint64(scriptReader.readByte())
-	scriptReader.readBytes(pushLength)
+	pushLength := uint64(scriptReader.ReadByte())
+	scriptReader.ReadBytes(pushLength)
 
-	secondOp := scriptReader.readByte()
+	secondOp := scriptReader.ReadByte()
 
 	if secondOp != 0x87 {
 		return false
@@ -144,9 +144,9 @@ func (script Script) P2SHHash160() ([]byte, error) {
 		Cursor: 0,
 	}
 
-	scriptReader.readByte()
-	pushLength := uint64(scriptReader.readByte())
-	return scriptReader.readBytes(pushLength), nil
+	scriptReader.ReadByte()
+	pushLength := uint64(scriptReader.ReadByte())
+	return scriptReader.ReadBytes(pushLength), nil
 }
 
 func (script Script) IsWitnessScript() bool {
@@ -155,12 +155,12 @@ func (script Script) IsWitnessScript() bool {
 		Cursor: 0,
 	}
 
-	witnessVersion := scriptReader.readByte()
+	witnessVersion := scriptReader.ReadByte()
 	if witnessVersion != 0x00 {
 		return false
 	}
 
-	pushLengthByte := scriptReader.readByte()
+	pushLengthByte := scriptReader.ReadByte()
 	if pushLengthByte != 0x20 && pushLengthByte != 0x14 {
 		return false
 	}
@@ -178,7 +178,7 @@ func (script Script) WitnessVersion() (byte, error) {
 		Cursor: 0,
 	}
 
-	return scriptReader.readByte(), nil
+	return scriptReader.ReadByte(), nil
 }
 
 func (script Script) WitnessProgram() ([]byte, error) {
@@ -191,7 +191,7 @@ func (script Script) WitnessProgram() ([]byte, error) {
 		Cursor: 0,
 	}
 
-	scriptReader.readByte()
-	pushLength := uint64(scriptReader.readByte())
-	return scriptReader.readBytes(pushLength), nil
+	scriptReader.ReadByte()
+	pushLength := uint64(scriptReader.ReadByte())
+	return scriptReader.ReadBytes(pushLength), nil
 }

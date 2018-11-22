@@ -94,14 +94,14 @@ func (r *ByteReader) PeekBytes(length uint64) []byte {
 //
 // Always returns a uint64
 func (r *ByteReader) ReadCompactSizeUint() uint64 {
-	intType := r.readByte()
+	intType := r.ReadByte()
 	switch intType {
 	case 0xFF:
-		return r.readUint64()
+		return r.ReadUint64()
 	case 0xFE:
-		return uint64(r.readUint32())
+		return uint64(r.ReadUint32())
 	case 0xFD:
-		return uint64(r.readUint16())
+		return uint64(r.ReadUint16())
 	default:
 		return uint64(intType)
 	}
