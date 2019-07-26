@@ -22,12 +22,18 @@ func ReverseHex(b []byte) []byte {
 	return newb
 }
 
-// Computes a reipemd160(data) for the given data.
+// Computes a ripemd160(data) for the given data.
 // Used for address and script serialization, etc.
-func Hash160(data []byte) Script {
+func Ripemd160(data []byte) Script {
 	hash := ripemd160.New()
 	hash.Write(data)
 	return hash.Sum(nil)
+}
+
+// hash160 returns the RIPEMD160 hash of the SHA-256 HASH of the given data.
+func Hash160(data []byte) []byte {
+	h := Sha256(data)
+	return Ripemd160(h[:])
 }
 
 // Computes a sha256(data) for the given data.

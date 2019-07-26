@@ -21,7 +21,7 @@ func TestReadCompactSizeUint(t *testing.T) {
 			Cursor: 0,
 		}
 
-		intvalue := reader.readCompactSizeUint()
+		intvalue := reader.ReadCompactSizeUint()
 
 		if intvalue != pair.output {
 			t.Error(

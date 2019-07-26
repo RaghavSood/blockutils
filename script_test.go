@@ -50,3 +50,12 @@ func TestScriptP2SH(t *testing.T) {
 		t.Errorf("Returned incorrect hash160. Expected %s, got %s", "4aef67ed61d391d6f3d9903ead92386c1efc9925", hash160String)
 	}
 }
+
+func TestHash160(t *testing.T) {
+	pubkey, _ := hex.DecodeString("031ebf7a7e449171a1876d045279227466b82c0a855edd686f6a44adcd74b126fa")
+	hash160 := Hash160(pubkey)
+
+	if ToHexString(hash160) != "8262506edc566112199930149185b7116b74e22e" {
+		t.Errorf("Returned incorrect hash160. Expected %s, got %s", "8262506edc566112199930149185b7116b74e22e", ToHexString(hash160))
+	}
+}
